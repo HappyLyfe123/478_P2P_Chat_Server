@@ -31,6 +31,20 @@ MessageSchema.statics.saveMessage = function(senderUsername, receiverUsername, s
     return Message.create(newMessage);
 }
 
+MessageSchema.statics.getMessages = async function(receiverUsername){
+    Message.find({'receiverUsername' : receiverUsername}).exec(async function(err, result){
+        if(err){
+            return err;
+        }
+        else{
+            return result;
+        }
+    });
+}
+
+MessageSchema.statics.deleteMessage = function(){
+
+}
 
 
 const Message = mongoose.model('Message', MessageSchema);

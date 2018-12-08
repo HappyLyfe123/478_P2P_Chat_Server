@@ -26,6 +26,32 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
+//Authenticate the user
+UserSchema.statics.authenticate = function(username, password){
+    return new Promise((resolve, reject)=>{
+        User.findOne({'username' : username}).exec().then((result)=>{
+            //There no user with that username
+            if(!result){
+                let err = new Error("User not found");
+                err.code = constants.USER_NOT_FOUND;
+                reject(err);
+                return;
+            }
+            let storedHash = result.get('password');
+            let salt = new Buffer(result.get('salt'));
+            let checkHash = scrypt.hashSync(password, {N: 1024, r:8, p:16},256,salt).toString('base64');
+            if(storedHash === checkHash){
+                resolve(true);
+            }
+            else{
+                resolve("No");
+            }
+        }).catch((err) =>{
+            err.code = constants.SERVER_ERROR;
+            reject(err);
+        });
+    });
+}
 
 //Create a new account
 UserSchema.statics.createUser = async function(username, password){

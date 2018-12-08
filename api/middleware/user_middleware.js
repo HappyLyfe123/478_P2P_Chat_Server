@@ -52,7 +52,28 @@ function accountLogin(req, res){
     });
 }
 
+//Save message being send from a user to another users
+function sendMessage(req, res){
+    let token = req.get('Authorization');
+    jwt.verify(token, process.env.JWT_SECRET_KEY, function(err, result){
+        if(err){
+            return res.json({'Error Message' : err});
+        }
+        let senderUsername = result.id;
+        let receiverUsername = req.body.receiverUsername;
+        let saveMessage = req.body.message;
+        Message.saveMessage(senderUsername, receiverUsername, saveMessage).then((newMessage)=>{
+            return res.json({"Respond Message" : "Message Saved"})
+        }).catch((err)=>{
+            return res.status(err.code).json({'Error Message' : err});
+        });
+    });
 
+}
+
+function retrieveMessage(req, res){
+    
+}
 
 module.exports = {
     createUserAccount,
