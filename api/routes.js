@@ -29,6 +29,11 @@ function routing(router){
         userMiddleware.retrieveMessage(req, res);
     });
 
+    //Delete messages
+    router.route('/message').delete(function(req, res){
+        userMiddleware.deleteMessages(req, res);
+    });
+
     return router;
 
 }

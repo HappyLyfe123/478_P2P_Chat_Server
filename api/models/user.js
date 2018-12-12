@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const scrypt = require('scrypt');
 const security = require('../helper/security');
 const constants = require('../helper/constants');
-const jwt = require('jsonwebtoken');
 
 const UserSchema = new mongoose.Schema({
     username: {
@@ -26,7 +25,7 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-//Authenticate the user
+//Authenticate the user (Jacob)
 UserSchema.statics.authenticate = function(username, password){
     return new Promise((resolve, reject)=>{
         User.findOne({'username' : username}).exec().then((result)=>{
@@ -37,14 +36,18 @@ UserSchema.statics.authenticate = function(username, password){
                 reject(err);
                 return;
             }
+            //Get the user hash password
             let storedHash = result.get('password');
+            //Get the salt use for hashing for hashing user password
             let salt = new Buffer(result.get('salt'));
+            //Generate a hash using the password and salt
             let checkHash = scrypt.hashSync(password, {N: 1024, r:8, p:16},256,salt).toString('base64');
+            //Check if the two hash matches
             if(storedHash === checkHash){
                 resolve(true);
             }
             else{
-                resolve("No");
+                resolve(false);
             }
         }).catch((err) =>{
             err.code = constants.SERVER_ERROR;
@@ -53,7 +56,7 @@ UserSchema.statics.authenticate = function(username, password){
     });
 }
 
-//Create a new account
+//Create a new account (Visal)
 UserSchema.statics.createUser = async function(username, password){
     //Generate a random salt
     let salt = security.generateRandomData(200).toString('base64');

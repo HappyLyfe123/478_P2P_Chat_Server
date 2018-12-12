@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 
+
 const MessageSchema = new mongoose.Schema({
     senderUsername:{
         type: String,
@@ -21,7 +22,7 @@ const MessageSchema = new mongoose.Schema({
     }
 });
 
-//Save send message to database
+//Save send message to database (Visal)
 MessageSchema.statics.saveMessage = function(senderUsername, receiverUsername, senderMessage){
     let newMessage = {
         'senderUsername' : senderUsername.toLowerCase(),
@@ -31,21 +32,30 @@ MessageSchema.statics.saveMessage = function(senderUsername, receiverUsername, s
     return Message.create(newMessage);
 }
 
+//Get messages from the server (Visal)
 MessageSchema.statics.getMessages = async function(receiverUsername){
-    Message.find({'receiverUsername' : receiverUsername}).exec(async function(err, result){
-        if(err){
-            return err;
-        }
-        else{
-            return result;
-        }
+    return new Promise((resolve, reject)=>{
+        //Check if there any messages in the database with the provided receiver username
+        Message.find({'receiverUsername' : receiverUsername}).exec().then((result)=>{
+            resolve(result);
+        }).catch((err)=>{
+            reject(err);
+        });
     });
 }
 
-MessageSchema.statics.deleteMessage = function(){
-
+//Delete message from the server database (Jacob)
+MessageSchema.statics.deleteMessages = async function(messagesID){
+    return new Promise((resolve, reject) =>{
+        var mongodb = require('mongodb');
+        //Delete a messaage using the given id
+        Message.deleteOne({'_id' : new mongodb.ObjectID(messagesID)}).exec().then((result)=>{
+            resolve(result);
+        }).catch((err) =>{
+            reject(err);
+        });
+    })
 }
-
 
 const Message = mongoose.model('Message', MessageSchema);
 module.exports = Message;
